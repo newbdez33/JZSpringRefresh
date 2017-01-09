@@ -12,6 +12,8 @@
 		CE7EA52C1E23B2080043357D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CE7EA52A1E23B2080043357D /* Main.storyboard */; };
 		CE7EA52E1E23B2080043357D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CE7EA52D1E23B2080043357D /* Assets.xcassets */; };
 		CE7EA5311E23B2080043357D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CE7EA52F1E23B2080043357D /* LaunchScreen.storyboard */; };
+		CE7EA53A1E23B5A80043357D /* JZSpringRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE7EA5391E23B5A80043357D /* JZSpringRefresh.swift */; };
+		CE7EA53E1E23BC1D0043357D /* JZSpringExpandView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE7EA53D1E23BC1D0043357D /* JZSpringExpandView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +24,8 @@
 		CE7EA52D1E23B2080043357D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CE7EA5301E23B2080043357D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CE7EA5321E23B2080043357D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CE7EA5391E23B5A80043357D /* JZSpringRefresh.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JZSpringRefresh.swift; sourceTree = "<group>"; };
+		CE7EA53D1E23BC1D0043357D /* JZSpringExpandView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JZSpringExpandView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +72,8 @@
 		CE7EA5381E23B2170043357D /* JZSpringRefresh */ = {
 			isa = PBXGroup;
 			children = (
+				CE7EA53D1E23BC1D0043357D /* JZSpringExpandView.swift */,
+				CE7EA5391E23B5A80043357D /* JZSpringRefresh.swift */,
 			);
 			path = JZSpringRefresh;
 			sourceTree = "<group>";
@@ -146,7 +152,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE7EA5291E23B2080043357D /* ViewController.swift in Sources */,
+				CE7EA53E1E23BC1D0043357D /* JZSpringExpandView.swift in Sources */,
 				CE7EA5271E23B2080043357D /* AppDelegate.swift in Sources */,
+				CE7EA53A1E23B5A80043357D /* JZSpringRefresh.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,10 +9,31 @@
 import UIKit
 
 class ViewController: UIViewController {
+    
+    var scrollView:UIScrollView? = nil
+    var textView:UITextView? = nil
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        scrollView = UIScrollView(frame: self.view.bounds)
+        scrollView?.backgroundColor = UIColor.white
+        scrollView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        scrollView?.alwaysBounceHorizontal = true
+        scrollView?.alwaysBounceVertical = true
+        scrollView?.contentSize = view.bounds.size
+        view.addSubview(scrollView!)
+        
+        textView = UITextView(frame: view.bounds, textContainer: nil)
+        textView?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        textView?.textContainerInset = UIEdgeInsetsMake(40, 20, 20, 20)
+        textView?.font = UIFont(name: "AvenirNext-Regular", size: 16)
+        textView?.textColor = UIColor.darkGray
+        textView?.isEditable = false
+        textView?.text = "AASpringRefresh\n\n AASpringRefresh is Unread.app like pull-to-refresh library that can put to 4 direction (top/bottom/left/right).\n\n License under the MIT License."
+        scrollView?.addSubview(textView!)
+        
+        
     }
 
     override func didReceiveMemoryWarning() {
