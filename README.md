@@ -8,6 +8,13 @@ All around Unread.app like pull to refresh library.
 
 Swift of https://github.com/r-plus/AASpringRefresh
 
-### TODO 
+## Install
+### Carthage
+Add `github "newbdez33/JZSpringRefresh"` to your Cartfile.
+
+### Manually
+
+1. Copy `JZSpringRefresh` directory to your project.
+
+## TODO 
  * Cocoapods support
- * Carthage support
