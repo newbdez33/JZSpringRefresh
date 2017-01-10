@@ -162,7 +162,7 @@ class JZSpringRefresh: UIView {
                                height: size.height)
             if self.text != nil {
                 label.frame = CGRect(x: (-self.scrollView!.bounds.size.width+self.size.width)/2.0,
-                                     y: -20.0,
+                                     y: 5,
                                      width: self.scrollView!.frame.size.width,
                                      height: 15.0)
             }
