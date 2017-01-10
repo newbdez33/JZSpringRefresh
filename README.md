@@ -6,7 +6,7 @@ All around Unread.app like pull to refresh library.
 
 ---
 
-Swift of https://github.com/r-plus/AASpringRefresh
+Swift version of https://github.com/r-plus/AASpringRefresh
 
 ## Install
 ### Carthage
