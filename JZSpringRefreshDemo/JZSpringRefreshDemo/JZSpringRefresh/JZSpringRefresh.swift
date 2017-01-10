@@ -30,7 +30,7 @@ extension UIScrollView {
         let springRefresh = JZSpringRefresh(position: position)
         springRefresh.scrollView = self
         springRefresh.pullToRefreshHandler = handler
-        springRefresh.setShowed(show: true)
+        springRefresh.showed = true
         addSubview(springRefresh)
         return springRefresh
     }
@@ -41,18 +41,78 @@ class JZSpringRefresh: UIView {
     var unExpandedColor = UIColor.gray
     var expandedColor = UIColor.black
     var readyColor = UIColor.red
-    private(set) var text:String? = nil // available for position Top or Bottom.
-    private(set) var borderThickness:CGFloat = 6.0 // default: 6.0.
+    var text:String? = nil {
+        didSet {
+            if text != "" && ( self.position == .top || self.position == .bottom ) {
+                // dont add multiple margin per change text.
+                if self.text == nil {
+                    self.affordanceMargin = self.affordanceMargin + 20.0
+                }
+                self.label.text = text
+                self.addSubview(self.label)
+            } else {
+                if self.text != nil {
+                    self.affordanceMargin = self.affordanceMargin - 20.0
+                }
+                self.label.removeFromSuperview()
+            }
+            self.setNeedsLayout()
+        }
+    }// available for position Top or Bottom.
+    var borderThickness:CGFloat = 6.0 {
+        didSet {
+            self.setNeedsLayout()
+        }
+    } // default: 6.0.
     var affordanceMargin:CGFloat = 10.0 // default: 10.0. to adjust space between scrollView edge and affordanceView.
     var offsetMargin:CGFloat = 30.0 // default: 30.0. to adjust threshold of offset.
     var threshold:CGFloat = 0.0 // default is width or height of size.
-    private(set) var size = CGSize.zero // to adjust expanded size and each interval space.
-    private var showed:Bool = false
+    var size = CGSize.zero {
+        didSet {
+            self.setNeedsLayout()
+        }
+    } // to adjust expanded size and each interval space.
+    var showed:Bool = false {
+        didSet {
+            self.isHidden = !showed
+            if self.showed != oldValue {
+                if showed {
+                    self.scrollView!.addObserver(self, forKeyPath: "contentOffset", options: .new, context: nil)
+                    self.scrollView!.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
+                    self.scrollView!.addObserver(self, forKeyPath: "frame", options: .new, context: nil)
+                }else {
+                    self.scrollView!.removeObserver(self, forKeyPath: "contentOffset")
+                    self.scrollView!.removeObserver(self, forKeyPath: "contentSize")
+                    self.scrollView!.removeObserver(self, forKeyPath: "frame")
+                }
+            }
+        }
+    }
     var isShowed:Bool {  // dynamic show/hide affordanceView and add/remove KVO observer.
         return showed
     }
     var pullToRefreshHandler:((_ springRefresh:JZSpringRefresh)->Void)? = nil
-    private(set) var progress:CGFloat = 0.0
+    var progress:CGFloat = 0.0 {
+        didSet {
+            
+            let progressInterval = 1.0 / CGFloat(self.springExpandViews.count)
+            var index = 1
+            for springExpandView in self.springExpandViews {
+                let expanded = (CGFloat(index) * progressInterval) <= progress
+                if progress >= 1.0 {
+                    springExpandView.setColor(color: self.readyColor)
+                    self.label.textColor = self.readyColor
+                } else if (expanded) {
+                    springExpandView.setColor(color: expandedColor)
+                } else {
+                    springExpandView.setColor(color: self.unExpandedColor)
+                    self.label.textColor = self.expandedColor
+                }
+                springExpandView.setExpanded(expanded: expanded, animated: true)
+                index += 1
+            }
+        }
+    }
     private(set) var position:JZSpringRefreshPosition = .top
     
     var isUserAction:Bool = false
@@ -148,16 +208,16 @@ class JZSpringRefresh: UIView {
         for springExpandView in springExpandViews {
             switch self.position {
             case .top:
-                springExpandView.frame = CGRect(x: 0.0, y: -interItemSpace * index, width: Double(self.bounds.width), height: self.borderThickness);
+                springExpandView.frame = CGRect(x: 0.0, y: -interItemSpace * index, width: Double(self.bounds.width), height: Double(self.borderThickness));
                 break;
             case .bottom:
-                springExpandView.frame = CGRect(x: 0.0, y: interItemSpace * index, width: Double(self.bounds.width), height: self.borderThickness);
+                springExpandView.frame = CGRect(x: 0.0, y: interItemSpace * index, width: Double(self.bounds.width), height: Double(self.borderThickness));
                 break;
             case .left:
-                springExpandView.frame = CGRect(x: -interItemSpace * index, y: 0.0, width: self.borderThickness, height: Double(self.bounds.height));
+                springExpandView.frame = CGRect(x: -interItemSpace * index, y: 0.0, width: Double(self.borderThickness), height: Double(self.bounds.height));
                 break;
             case .right:
-                springExpandView.frame = CGRect(x: interItemSpace * index, y: 0.0, width: self.borderThickness, height: Double(self.bounds.height));
+                springExpandView.frame = CGRect(x: interItemSpace * index, y: 0.0, width: Double(self.borderThickness), height: Double(self.bounds.height));
                 break;
             }
             index += 1
@@ -243,76 +303,6 @@ class JZSpringRefresh: UIView {
         }
         
         self.isUserAction = self.scrollView!.isDragging
-    }
-    
-    // - MARK: setter
-    func setProgress(progress:CGFloat) {
-        // minus guard.
-        let progress = progress < 0 ? 0 : progress
-        self.progress = progress
-        
-        let progressInterval = 1.0 / CGFloat(self.springExpandViews.count)
-        var index = 1
-        for springExpandView in self.springExpandViews {
-            let expanded = (CGFloat(index) * progressInterval) <= progress
-            if progress >= 1.0 {
-                springExpandView.setColor(color: self.readyColor)
-                self.label.textColor = self.readyColor
-            } else if (expanded) {
-                springExpandView.setColor(color: expandedColor)
-            } else {
-                springExpandView.setColor(color: self.unExpandedColor)
-                self.label.textColor = self.expandedColor
-            }
-            springExpandView.setExpanded(expanded: expanded, animated: true)
-            index += 1
-        }
-    }
-    
-    func setShowed(show:Bool) {
-        self.isHidden = !show
-        if self.showed != show {
-            if show {
-                self.scrollView!.addObserver(self, forKeyPath: "contentOffset", options: .new, context: nil)
-                self.scrollView!.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
-                self.scrollView!.addObserver(self, forKeyPath: "frame", options: .new, context: nil)
-                self.showed = true
-            }else {
-                self.scrollView!.removeObserver(self, forKeyPath: "contentOffset")
-                self.scrollView!.removeObserver(self, forKeyPath: "contentSize")
-                self.scrollView!.removeObserver(self, forKeyPath: "frame")
-                self.showed = false
-            }
-        }
-    }
-    
-    func setSize(size:CGSize) {
-        self.size = size
-        self.setNeedsLayout()
-    }
-    
-    func setBorderThickness(borderThickness:CGFloat) {
-        self.borderThickness = borderThickness
-        self.setNeedsLayout()
-    }
-    
-    func setText(text:String) {
-        
-        if text != "" && ( self.position == .top || self.position == .bottom ) {
-            // dont add multiple margin per change text.
-            if self.text == nil {
-                self.affordanceMargin = self.affordanceMargin + 20.0
-            }
-            self.label.text = text
-            self.addSubview(self.label)
-        } else {
-            if self.text != nil {
-                self.affordanceMargin = self.affordanceMargin - 20.0
-            }
-            self.label.removeFromSuperview()
-        }
-        self.text = text
-        self.setNeedsLayout()
     }
     
 }

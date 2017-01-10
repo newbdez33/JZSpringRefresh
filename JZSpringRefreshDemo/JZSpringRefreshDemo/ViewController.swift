@@ -37,13 +37,13 @@ class ViewController: UIViewController {
         let top = self.scrollView!.addSpringRefresh(position: .top) { (v:JZSpringRefresh) in
             print("top")
         }
-        top.setText(text: "REFRESH")
+        top.text = "REFRESH"
         // bottom
         let bottom = self.scrollView!.addSpringRefresh(position: .bottom) { (v:JZSpringRefresh) in
             print("bottom")
         }
-        bottom.setSize(size: CGSize(width: 120.0, height: 40.0))
-        bottom.setText(text: "Size property customized")
+        bottom.size = CGSize(width: 120.0, height: 40.0)
+        bottom.text = "Size property customized"
         // left
         let left = self.scrollView!.addSpringRefresh(position: .left) { (v:JZSpringRefresh) in
             print("left")
@@ -55,7 +55,7 @@ class ViewController: UIViewController {
         let right = self.scrollView!.addSpringRefresh(position: .right) { (v:JZSpringRefresh) in
             print("right")
         }
-        right.setBorderThickness(borderThickness: 2.0)
+        right.borderThickness = 2.0
     }
 
     override func didReceiveMemoryWarning() {
