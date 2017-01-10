@@ -7,3 +7,7 @@ All around Unread.app like pull to refresh library.
 ---
 
 Swift of https://github.com/r-plus/AASpringRefresh
+
+### TODO 
+ * Cocoapods support
+ * Carthage support
