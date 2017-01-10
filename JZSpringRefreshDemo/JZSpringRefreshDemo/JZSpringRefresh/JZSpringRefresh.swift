@@ -41,18 +41,18 @@ class JZSpringRefresh: UIView {
     var unExpandedColor = UIColor.gray
     var expandedColor = UIColor.black
     var readyColor = UIColor.red
-    var text:String? = nil // available for position Top or Bottom.
-    var borderThickness = 6.0 // default: 6.0.
+    private(set) var text:String? = nil // available for position Top or Bottom.
+    private(set) var borderThickness:CGFloat = 6.0 // default: 6.0.
     var affordanceMargin:CGFloat = 10.0 // default: 10.0. to adjust space between scrollView edge and affordanceView.
-    var offsetMargin = 30.0 // default: 30.0. to adjust threshold of offset.
-    var threshold = 0.0 // default is width or height of size.
-    var size = CGSize.zero // to adjust expanded size and each interval space.
+    var offsetMargin:CGFloat = 30.0 // default: 30.0. to adjust threshold of offset.
+    var threshold:CGFloat = 0.0 // default is width or height of size.
+    private(set) var size = CGSize.zero // to adjust expanded size and each interval space.
     private var showed:Bool = false
     var isShowed:Bool {  // dynamic show/hide affordanceView and add/remove KVO observer.
         return showed
     }
     var pullToRefreshHandler:((_ springRefresh:JZSpringRefresh)->Void)? = nil
-    private(set) var progress = 0.0
+    private(set) var progress:CGFloat = 0.0
     private(set) var position:JZSpringRefreshPosition = .top
     
     var isUserAction:Bool = false
@@ -173,10 +173,146 @@ class JZSpringRefresh: UIView {
     }
     
     // - MARK: KVO
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == "contentOffset" {
+            if change == nil  {
+                return
+            }
+            guard let v = change?[.newKey] as? NSValue else {
+                return
+            }
+            self.scrollViewDidScroll(contentOffset: v.cgPointValue)
+        } else if (keyPath == "contentSize") {
+            self.setNeedsLayout()
+        } else if (keyPath == "frame") {
+            self.setNeedsLayout()
+        }
+    }
+    
+    func scrollViewDidScroll(contentOffset:CGPoint) {
+        
+        if self.scrollView == nil {
+            return
+        }
+        
+        // Do Action prev progress value.
+        if self.isUserAction && !self.scrollView!.isDragging && !self.scrollView!.isZooming && self.progress > 0.99  {
+            if self.pullToRefreshHandler != nil {
+                self.pullToRefreshHandler!(self)
+            }
+        }
+        
+        let yOffset = contentOffset.y
+        let xOffset = contentOffset.x
+        
+        switch self.position {
+        case .top:
+            let threshold = self.threshold != 0 ? self.threshold : self.bounds.height
+            self.progress = (-yOffset - self.offsetMargin - self.scrollView!.contentInset.top) / threshold
+            if self.text != nil {
+                self.label.alpha = (-yOffset - self.scrollView!.contentInset.top) / 40.0
+            }
+            self.alpha = (-yOffset - self.scrollView!.contentInset.top) / 40.0
+            break
+        case .bottom:
+            var overBottomOffsetY = yOffset
+            let threshold = self.threshold != 0 ? self.threshold : self.bounds.height
+            if self.scrollView!.contentSize.height > self.scrollView!.frame.size.height {
+                overBottomOffsetY += -self.scrollView!.contentSize.height + self.scrollView!.frame.size.height
+                self.progress = (overBottomOffsetY - self.offsetMargin - self.scrollView!.contentInset.bottom) / threshold
+                if self.text != nil {
+                    self.label.alpha = (overBottomOffsetY - self.scrollView!.contentInset.bottom) / threshold
+                }
+            }else {
+                overBottomOffsetY += 20.0 + self.scrollView!.contentInset.bottom
+                self.progress = (overBottomOffsetY - self.offsetMargin) / threshold
+                if self.text != nil {
+                    self.label.alpha = (overBottomOffsetY) / threshold
+                }
+            }
+            break
+        case .left:
+            let threshold = self.threshold != 0 ? self.threshold : self.bounds.width;
+            self.progress = (-xOffset - self.offsetMargin) / threshold;
+            break
+        case .right:
+            let rightEdgeOffset = self.scrollView!.contentSize.width - self.scrollView!.bounds.size.width;
+            let threshold = self.threshold != 0 ? self.threshold : self.bounds.width;
+            self.progress = (xOffset - rightEdgeOffset - self.offsetMargin) / threshold;
+            break
+        }
+        
+        self.isUserAction = self.scrollView!.isDragging
+    }
     
     // - MARK: setter
-    func setShowed(show:Bool) {
+    func setProgress(progress:CGFloat) {
+        // minus guard.
+        let progress = progress < 0 ? 0 : progress
+        self.progress = progress
         
+        let progressInterval = 1.0 / CGFloat(self.springExpandViews.count)
+        var index = 1
+        for springExpandView in self.springExpandViews {
+            let expanded = (CGFloat(index) * progressInterval) <= progress
+            if progress >= 1.0 {
+                springExpandView.setColor(color: self.readyColor)
+                self.label.textColor = self.readyColor
+            } else if (expanded) {
+                springExpandView.setColor(color: expandedColor)
+            } else {
+                springExpandView.setColor(color: self.unExpandedColor)
+                self.label.textColor = self.expandedColor
+            }
+            springExpandView.setExpanded(expanded: expanded, animated: true)
+            index += 1
+        }
+    }
+    
+    func setShowed(show:Bool) {
+        self.isHidden = !show
+        if self.showed != show {
+            if show {
+                self.scrollView!.addObserver(self, forKeyPath: "contentOffset", options: .new, context: nil)
+                self.scrollView!.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
+                self.scrollView!.addObserver(self, forKeyPath: "frame", options: .new, context: nil)
+                self.showed = true
+            }else {
+                self.scrollView!.removeObserver(self, forKeyPath: "contentOffset")
+                self.scrollView!.removeObserver(self, forKeyPath: "contentSize")
+                self.scrollView!.removeObserver(self, forKeyPath: "frame")
+                self.showed = false
+            }
+        }
+    }
+    
+    func setSize(size:CGSize) {
+        self.size = size
+        self.setNeedsLayout()
+    }
+    
+    func setBorderThickness(borderThickness:CGFloat) {
+        self.borderThickness = borderThickness
+        self.setNeedsLayout()
+    }
+    
+    func setText(text:String) {
+        
+        if text != "" && ( self.position == .top || self.position == .bottom ) {
+            // dont add multiple margin per change text.
+            if self.text == nil {
+                self.affordanceMargin = self.affordanceMargin + 20.0
+            }
+            self.label.text = text
+            self.addSubview(self.label)
+        } else {
+            if self.text != nil {
+                self.affordanceMargin = self.affordanceMargin - 20.0
+            }
+            self.label.removeFromSuperview()
+        }
+        self.text = text
+        self.setNeedsLayout()
     }
     
 }
