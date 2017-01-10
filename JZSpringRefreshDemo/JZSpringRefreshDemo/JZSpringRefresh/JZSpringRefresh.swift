@@ -8,15 +8,15 @@
 
 import UIKit
 
-enum JZSpringRefreshPosition {
+public enum JZSpringRefreshPosition {
     case top
     case bottom
     case left
     case right
 }
 
-extension UIScrollView {
-    func addSpringRefresh(position:JZSpringRefreshPosition, actionHandlere handler: @escaping (_ springRefresh:JZSpringRefresh) -> Void ) -> JZSpringRefresh {
+public extension UIScrollView {
+    public func addSpringRefresh(position:JZSpringRefreshPosition, actionHandlere handler: @escaping (_ springRefresh:JZSpringRefresh) -> Void ) -> JZSpringRefresh {
         
         // Don't add two instance to same position.
         for v in subviews {
@@ -36,12 +36,12 @@ extension UIScrollView {
     }
 }
 
-class JZSpringRefresh: UIView {
+public class JZSpringRefresh: UIView {
 
-    var unExpandedColor = UIColor.gray
-    var expandedColor = UIColor.black
-    var readyColor = UIColor.red
-    var text:String? = nil {
+    public var unExpandedColor = UIColor.gray
+    public var expandedColor = UIColor.black
+    public var readyColor = UIColor.red
+    public var text:String? = nil {
         didSet {
             if text != "" && ( self.position == .top || self.position == .bottom ) {
                 // dont add multiple margin per change text.
@@ -59,20 +59,20 @@ class JZSpringRefresh: UIView {
             self.setNeedsLayout()
         }
     }// available for position Top or Bottom.
-    var borderThickness:CGFloat = 6.0 {
+    public var borderThickness:CGFloat = 6.0 {
         didSet {
             self.setNeedsLayout()
         }
     } // default: 6.0.
-    var affordanceMargin:CGFloat = 10.0 // default: 10.0. to adjust space between scrollView edge and affordanceView.
-    var offsetMargin:CGFloat = 30.0 // default: 30.0. to adjust threshold of offset.
-    var threshold:CGFloat = 0.0 // default is width or height of size.
-    var size = CGSize.zero {
+    public var affordanceMargin:CGFloat = 10.0 // default: 10.0. to adjust space between scrollView edge and affordanceView.
+    public var offsetMargin:CGFloat = 30.0 // default: 30.0. to adjust threshold of offset.
+    public var threshold:CGFloat = 0.0 // default is width or height of size.
+    public var size = CGSize.zero {
         didSet {
             self.setNeedsLayout()
         }
     } // to adjust expanded size and each interval space.
-    var showed:Bool = false {
+    public var showed:Bool = false {
         didSet {
             self.isHidden = !showed
             if self.showed != oldValue {
@@ -88,11 +88,11 @@ class JZSpringRefresh: UIView {
             }
         }
     }
-    var isShowed:Bool {  // dynamic show/hide affordanceView and add/remove KVO observer.
+    public var isShowed:Bool {  // dynamic show/hide affordanceView and add/remove KVO observer.
         return showed
     }
-    var pullToRefreshHandler:((_ springRefresh:JZSpringRefresh)->Void)? = nil
-    var progress:CGFloat = 0.0 {
+    public var pullToRefreshHandler:((_ springRefresh:JZSpringRefresh)->Void)? = nil
+    public var progress:CGFloat = 0.0 {
         didSet {
             
             let progressInterval = 1.0 / CGFloat(self.springExpandViews.count)
@@ -115,13 +115,13 @@ class JZSpringRefresh: UIView {
     }
     private(set) var position:JZSpringRefreshPosition = .top
     
-    var isUserAction:Bool = false
+    public var isUserAction:Bool = false
     var springExpandViews:[JZSpringExpandView] = []
     var scrollView:UIScrollView? = nil
-    var label:UILabel = UILabel(frame: CGRect.zero)
+    public var label:UILabel = UILabel(frame: CGRect.zero)
     
     // - MARK: init
-    init(position:JZSpringRefreshPosition) {
+    public init(position:JZSpringRefreshPosition) {
         super.init(frame:CGRect.zero)
         let isSidePosition = position == .left || position == .right
         self.position = position
@@ -146,12 +146,12 @@ class JZSpringRefresh: UIView {
         springExpandViews = [springExpandView1, springExpandView2, springExpandView3]
     }
     
-    required init?(coder aDecoder: NSCoder) {
+    public required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     // - MARK: override
-    override func layoutSubviews() {
+    override public func layoutSubviews() {
         super.layoutSubviews()
         
         switch position {
@@ -224,7 +224,7 @@ class JZSpringRefresh: UIView {
         }
     }
     
-    override func willMove(toSuperview newSuperview: UIView?) {
+    override public func willMove(toSuperview newSuperview: UIView?) {
         if self.superview != nil && newSuperview == nil {
             if isShowed {
                 self.showed = false
@@ -233,7 +233,7 @@ class JZSpringRefresh: UIView {
     }
     
     // - MARK: KVO
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+    override public func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if keyPath == "contentOffset" {
             if change == nil  {
                 return
