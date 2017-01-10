@@ -20,7 +20,7 @@ Add `github "newbdez33/JZSpringRefresh"` to your Cartfile.
 
     import JZSpringRefresh
     ...
-    let top = self.scrollView!.addSpringRefresh(position: .top) { (v:JZSpringRefresh) in
+    let top = self.scrollView.addSpringRefresh(position: .top) { (v:JZSpringRefresh) in
         print("top")
     }
     top.text = "REFRESH"
