@@ -485,6 +485,7 @@
 				CE7EA54E1E251F970043357D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -45,7 +45,7 @@ public class JZSpringRefresh: UIView {
         didSet {
             if text != "" && ( self.position == .top || self.position == .bottom ) {
                 // dont add multiple margin per change text.
-                if self.text == nil {
+                if oldValue == nil {
                     self.affordanceMargin = self.affordanceMargin + 20.0
                 }
                 self.label.text = text
@@ -93,13 +93,17 @@ public class JZSpringRefresh: UIView {
     }
     public var pullToRefreshHandler:((_ springRefresh:JZSpringRefresh)->Void)? = nil
     public var progress:CGFloat = 0.0 {
+
         didSet {
-            
+            var p:CGFloat = 0.0
+            if progress > 0 {
+                p = progress
+            }
             let progressInterval = 1.0 / CGFloat(self.springExpandViews.count)
             var index = 1
             for springExpandView in self.springExpandViews {
-                let expanded = (CGFloat(index) * progressInterval) <= progress
-                if progress >= 1.0 {
+                let expanded = (CGFloat(index) * progressInterval) <= p
+                if p >= 1.0 {
                     springExpandView.setColor(color: self.readyColor)
                     self.label.textColor = self.readyColor
                 } else if (expanded) {
